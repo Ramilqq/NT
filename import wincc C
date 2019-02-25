@@ -1,0 +1,56 @@
+void Read002()
+{
+#define MaxLineLength 80
+
+FILE *fpFile;
+char *strTag,*strValue,*pTmp, *ppTemp;
+char buffer[MaxLineLength];
+double dVal;
+int i;
+i=0;
+//fpFile=fopen(GetTagChar("D:\ReadWrite\test.txt"),"r");
+//printf("OpenReadFile: %s\r\n", GetTagChar("Filename"));
+
+fpFile=fopen("D:\\ReadWrite\\Filename.txt","r");
+printf("OpenReadFile: %s\r\n", "import");
+
+if (fpFile != NULL)
+{
+	while(fgets(buffer,MaxLineLength,fpFile))
+	{
+		strTag=buffer;    
+
+		ppTemp=strchr(buffer,(char)'?');
+		if (ppTemp!=NULL)
+		{
+			printf("No line)\r\n"); 
+			break;
+		}
+		pTmp=strchr(buffer,(int)',');
+		*pTmp='\0';
+		strValue=++pTmp;
+		strValue[strlen(strValue)-1]='\0';
+
+		//pTmp=strchr(strValue,(int)',');
+		//if (pTmp!=NULL)
+		//{
+		//	*pTmp='.';    
+		//}
+		sscanf (strValue,"%lf", &dVal); 
+		SetTagDouble(strTag,dVal); 
+		printf("%s Value:%lf\r\n",strTag,dVal);  
+		SetPropChar("ImportExport.pdl","Tag001","OutputValue","Идет запись в WINCC");
+		SetPropChar("ImportExport.pdl","Tag002","OutputValue",strTag);
+		strTag= NULL; strValue = NULL; pTmp =NULL;  ppTemp = NULL;
+	}
+	fclose(fpFile);
+	SetPropChar("ImportExport.pdl","Tag001","OutputValue",NULL);
+	SetPropChar("ImportExport.pdl","Tag002","OutputValue",NULL);
+}
+else
+{
+	printf("ERROR:Dont have txt file");
+}
+printf("Finish\r\n");
+
+}
