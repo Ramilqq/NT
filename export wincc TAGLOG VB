@@ -214,3 +214,19 @@ HMIRuntime.Trace "Control1: stop"  & vbCrLf
 	SetLocale(OldLocale)
 
 End Sub
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Button 
+/////////////////////////////////////////////////////////////////////////////////////////////
+Sub OnLButtonUp(ByVal Item, ByVal Flags, ByVal x, ByVal y)      
+  Dim objEX
+  Set objEX = CreateObject("Excel.application")
+  objEX.Visible = True
+  objEX.Workbooks.Open (ScreenItems("Report").Text)
+  ScreenItems("Report1").Visible = False
+End Sub
+
+
+
+
+
