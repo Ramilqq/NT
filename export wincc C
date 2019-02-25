@@ -1,0 +1,84 @@
+#define SAVETAG 22
+
+char* ExportData[SAVETAG]=
+{
+"HighLimit",	//2
+"LowLimit",	//3
+"Otkl",		//4
+"bEnableMin",	//5
+"bEnableMax",	//6
+"bAlarmMin",	//7
+"bAlarmMax",	//8
+"pFront",	//9 
+"bTxn",		//10
+"bTxnMin",	//11	
+"bTxnMax",	//12
+"bEnWarn",	//13
+"bWarnMin",	//14
+"bWarnMax",	//15
+"rAlarmMin",	//16
+"rAlarmMax",	//17
+"rTxnMin",	//18
+"rTxnMax",	//19
+"rWarnMin",	//20
+"rWarnMax",	//21
+"iDvNo[1]",	//22
+"iDvNo[2]",	//23
+
+};
+#include "apdefap.h"
+void Write001(char*lpszPictureName)
+{
+#define MaxLineLength 80
+
+FILE *fpFile;
+char *strTag2[200];
+char *pTmp;
+char buffer[MaxLineLength ];
+char bufferGet[200];
+double dVal;
+double *ddVal;
+int i;
+int num;
+
+DWORD state = 0;
+
+fpFile=fopen("D:\\ReadWrite\\Filename.txt","w+"); 
+printf("OpenReadFile: %s\r\n", "export");
+
+if (fpFile != NULL)
+{
+	for (num = 1; num < 255; num++)
+	{
+		for (i=0; i < SAVETAG; i++)
+		{
+			sprintf (bufferGet,"AnUPN[%d].%s", num, ExportData[i]);
+			if (bufferGet != NULL )
+			{
+					dVal=GetTagDouble(bufferGet);
+					printf ("\nbufferGet= %s\r\n",bufferGet);
+					sprintf(buffer,"%s,%f\n", bufferGet,dVal);
+					fputs(buffer,fpFile);
+					SetPropChar("ImportExport.pdl","Tag001","OutputValue","Идет запись в файл");
+					SetPropChar("ImportExport.pdl","Tag002","OutputValue",bufferGet);
+					printf("%s\n\r",buffer);
+			}
+			else
+			{
+				printf("Domt have tag");
+			}
+		}
+		printf ("buffer= %d\r\n",num);
+	}
+	fputs("?",fpFile);
+	fclose(fpFile);
+	SetPropChar("ImportExport.pdl","Tag001","OutputValue",NULL);
+	SetPropChar("ImportExport.pdl","Tag002","OutputValue",NULL);
+}
+else
+{
+	printf("Error\r\n");
+}
+printf("Finish\r\n");
+
+}
