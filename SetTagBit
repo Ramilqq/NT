@@ -1,0 +1,68 @@
+void BitsFromWord()
+{
+// Internal tags:
+// test_word1, test_bit_0 ... test_bit_15
+WORD x;
+
+BOOL bit_0;
+BOOL bit_1;
+BOOL bit_2;
+BOOL bit_3;
+BOOL bit_4;
+BOOL bit_5;
+BOOL bit_6;
+BOOL bit_7;
+
+BOOL bit_8;
+BOOL bit_9;
+BOOL bit_10;
+BOOL bit_11;
+BOOL bit_12;
+BOOL bit_13;
+BOOL bit_14;
+BOOL bit_15;
+
+
+x = GetTagWord("test_word1"); //Return-Type: WORD
+//Direct: ?TRUE:FALSE;  Inverted: ?FALSE:TRUE;
+bit_0 = (x & 0x0001)?TRUE:FALSE;
+bit_1 = (x & 0x0002)?TRUE:FALSE;
+bit_2 = (x & 0x0004)?TRUE:FALSE;
+bit_3 = (x & 0x0008)?TRUE:FALSE;
+
+bit_4 = (x & 0x0010)?TRUE:FALSE;
+bit_5 = (x & 0x0020)?TRUE:FALSE;
+bit_6 = (x & 0x0040)?TRUE:FALSE;
+bit_7 = (x & 0x0080)?TRUE:FALSE;
+
+bit_8 = (x & 0x0100)?TRUE:FALSE;
+bit_9 = (x & 0x0200)?TRUE:FALSE;
+bit_10 = (x & 0x0400)?TRUE:FALSE;
+bit_11 = (x & 0x0800)?TRUE:FALSE;
+
+bit_12 = (x & 0x1000)?TRUE:FALSE;
+bit_13 = (x & 0x2000)?TRUE:FALSE;
+bit_14 = (x & 0x4000)?TRUE:FALSE;
+bit_15 = (x & 0x8000)?TRUE:FALSE;
+
+
+SetTagBit("test_bit_0",bit_0); //Return-Type: BOOL
+SetTagBit("test_bit_1",bit_1); //Return-Type: BOOL
+SetTagBit("test_bit_2",bit_2); //Return-Type: BOOL
+SetTagBit("test_bit_3",bit_3); //Return-Type: BOOL
+
+SetTagBit("test_bit_4",bit_4); //Return-Type: BOOL
+SetTagBit("test_bit_5",bit_5); //Return-Type: BOOL
+SetTagBit("test_bit_6",bit_6); //Return-Type: BOOL
+SetTagBit("test_bit_7",bit_7); //Return-Type: BOOL
+
+SetTagBit("test_bit_8",bit_8); //Return-Type: BOOL
+SetTagBit("test_bit_9",bit_9); //Return-Type: BOOL
+SetTagBit("test_bit_10",bit_10); //Return-Type: BOOL
+SetTagBit("test_bit_11",bit_11); //Return-Type: BOOL
+
+SetTagBit("test_bit_12",bit_12); //Return-Type: BOOL
+SetTagBit("test_bit_13",bit_13); //Return-Type: BOOL
+SetTagBit("test_bit_14",bit_14); //Return-Type: BOOL
+SetTagBit("test_bit_15",bit_15); //Return-Type: BOOL
+}
