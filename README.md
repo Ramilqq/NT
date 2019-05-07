@@ -1,7 +1,6 @@
 # NT
 
-**********************
-<h2>mbRTU</h2>
+# mbRTU
 cd C:\Windows\SysWOW64<p>
 regsvr32 mscomm32.ocx
-**********************
+
