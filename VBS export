@@ -1,0 +1,189 @@
+Sub OnClick(ByVal Item)                                                                                                                                                           
+			
+	Dim sDsn, sCon, sSql		
+	Dim conn, oRs, oCom	
+	Dim m, DSNName, ServerName, sServerName
+
+	Dim sBeginTime, sEndTime
+	Dim sDeep 
+	Dim sGMTime,sLocalTime
+	Dim TimeCorrection
+	Dim sFileName 
+	Dim sFilter
+	
+	Dim R	
+	Dim Status
+	
+	Dim OldLocale
+ 	Dim Ans
+
+	OldLocale  = GetLocale ()   
+	If (OldLocale = 1049) Then 'Russian
+	Else  
+	 Ans = MsgBox("Пример работает только в русских региональных настройках." & vbCrLf & "Установить русские региональные настройки на время работы функции экспорта?", vbYesNo)	 
+	 If (Ans = vbYes) Then  
+	  SetLocale(1049)	 
+	 Else   
+	   Exit Sub
+	 End If    	 
+	End If	
+	 
+' ms  
+	Set DSNName = HMIRuntime.Tags("@DatasourceNameRT")
+	DSNName.Read
+	sDsn = DSNName.Value	
+	
+	Set ServerName = HMIRuntime.Tags("@ServerName")
+	ServerName.Read
+	sServerName = ServerName.Value	
+
+
+'------------------------------------------------------------------------------------------------   		
+Dim objExcelApp
+On Error Resume Next 
+Set objExcelApp = CreateObject("Excel.Application")
+If (Err.Number > 0) Then 
+ MsgBox ("Ошибка!  Не удалось создать объект Excel" & vbCrLf & "Для работы функции экспорта необходимо установить MS Excel 2000\XP\2003" )   
+ SetLocale(OldLocale)
+ Exit Sub
+Else 
+End If 
+objExcelApp.Visible = True
+Dim ExcelSheet
+Set ExcelSheet = CreateObject("Excel.Sheet")
+ExcelSheet.Application.Visible = True
+ExcelSheet.ActiveSheet.Name = "Messages"
+'------------------------------------------------------------------------------------------------   	
+
+  ScreenItems("PW_Export_1").Visible = True  
+  ScreenItems("PW_Export_2").Visible = True  
+
+HMIRuntime.Trace vbCrLf & "DSN: " & sDsn & vbCrLf
+	
+	sDsn = "Catalog=" & sDsn & ";"
+	sCon = "Provider=WinCCOLEDBProvider.1;" & sDsn & "Data Source=" & sServerName &"\WinCC"			   
+    
+    Set conn = CreateObject("ADODB.Connection")
+    conn.ConnectionString = sCon
+    
+HMIRuntime.Trace "ADO DB conection string: " & conn.ConnectionString & vbCrLf
+    
+    conn.CursorLocation = 3
+    conn.Open    
+    
+    Set oRs = CreateObject("ADODB.Recordset")
+    Set oCom = CreateObject("ADODB.Command")    
+
+'------------------------------------------------------------------------------------------------   	
+
+HMIRuntime.Trace "Control1: start"  & vbCrLf          
+	sGMTime = ScreenItems("Date1").Text
+	sLocalTime  = ScreenItems("Date2").Text
+	sGMTime = CDate(sGMTime)
+	sLocalTime = CDate(sLocalTime)	
+HMIRuntime.Trace "TimeZ : " & sLocalTime & " - "  & sGMTime & vbCrLf          
+    TimeCorrection = DateDiff("h", sGMTime, sLocalTime)    
+
+HMIRuntime.Trace "TimeZone : " & TimeCorrection & vbCrLf          
+'	sBeginTime = ScreenItems("StartTime").Text
+	sBeginTime = Now		
+HMIRuntime.Trace "------------------------------sBeginTime : " & sBeginTime & vbCrLf     	
+	SDeep      = ScreenItems("Range").Text
+	sFilter	   = ScreenItems("Filter_2_Export").Text
+HMIRuntime.Trace "Данные: " &  sBeginTime   & "  - " & SDeep  & "  - " & sFilter & "  - " & vbCrLf
+	sBeginTime = DateAdd("h", -TimeCorrection, sBeginTime)					
+	sEndTime   = DateAdd("h", -sDeep, sBeginTime)					
+HMIRuntime.Trace "T2: " & sBeginTime & " --- " & sEndTime & vbCrLf						
+	sSql = "ALARMVIEW:Select * FROM AlgViewRus WHERE DateTime<='"
+	sSql = sSql & Year(sBeginTime) & "-" & Month(sBeginTime)  & "-" & Day(sBeginTime) & " " & Hour(sBeginTime) & ":" & Minute(sBeginTime) & ":" & Second(sBeginTime) & "'"
+	sSql = sSql & " AND DateTime>='" & Year(sEndTime) & "-" & Month(sEndTime)  & "-" & Day(sEndTime) & " " & Hour(sEndTime) & ":" & Minute(sEndTime) & ":" & Second(sEndTime) & "' "    			
+	sSql = sSql & sFilter & " Order By DateTime DESC"	
+HMIRuntime.Trace "SQL String: " & sSql & vbCrLf		
+
+ExcelSheet.ActiveSheet.Cells(1,1).Value = "Сообщения ССПИ"
+'ExcelSheet.ActiveSheet.Cells(1,2).Value = CStr(sEndTime) & vbLf & CStr(sBeginTime)			
+ExcelSheet.ActiveSheet.Cells(1,2).Value = "от"
+ExcelSheet.ActiveSheet.Cells(1,3).Value = CStr(DateAdd("h", TimeCorrection, sEndTime))	
+ExcelSheet.ActiveSheet.Cells(1,4).Value = "по"
+ExcelSheet.ActiveSheet.Cells(1,5).Value = CStr(DateAdd("h", TimeCorrection, sBeginTime))
+
+ExcelSheet.ActiveSheet.Cells(2,1).Value = "№"	
+ExcelSheet.ActiveSheet.Cells(2,1).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,1).Font.Bold = True	
+ExcelSheet.ActiveSheet.Cells(2,1).Interior.ColorIndex = 15
+ExcelSheet.ActiveSheet.Cells(2,2).Value = "Статус"	
+ExcelSheet.ActiveSheet.Cells(2,2).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,2).Font.Bold = True	
+ExcelSheet.ActiveSheet.Cells(2,2).Interior.ColorIndex = 15
+ExcelSheet.ActiveSheet.Cells(2,3).Value = "Дата"
+ExcelSheet.ActiveSheet.Cells(2,3).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,3).Font.Bold = True
+ExcelSheet.ActiveSheet.Cells(2,3).Interior.ColorIndex = 15
+ExcelSheet.ActiveSheet.Cells(2,4).Value = "Время"
+ExcelSheet.ActiveSheet.Cells(2,4).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,4).Font.Bold = True
+ExcelSheet.ActiveSheet.Cells(2,4).Interior.ColorIndex = 15
+ExcelSheet.ActiveSheet.Cells(2,5).Value = "Текст сообщения"
+ExcelSheet.ActiveSheet.Cells(2,5).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,5).Font.Bold = True
+ExcelSheet.ActiveSheet.Cells(2,5).Interior.ColorIndex = 15
+ExcelSheet.ActiveSheet.Cells(2,6).Value = "Объект"	
+ExcelSheet.ActiveSheet.Cells(2,6).Font.Size = 10
+ExcelSheet.ActiveSheet.Cells(2,6).Font.Bold = True	
+ExcelSheet.ActiveSheet.Cells(2,6).Interior.ColorIndex = 15
+	
+		Set oCom.ActiveConnection = conn
+		oCom.CommandType = 1 
+	    oCom.CommandText = sSql
+	    
+	    Set oRs = oCom.Execute
+	    m = oRs.Fields.Count  
+HMIRuntime.Trace "БД: " & oRs.Fields.Count & " - " & oRs.RecordCount & vbCrLf        
+	    If(m>0) Then
+		    oRs.MoveFirst	
+			R = 2 
+		    Do While Not oRs.EOF		       		       		
+			    R = R + 1
+			    ExcelSheet.ActiveSheet.Cells(R,1).Value = R - 2 
+				ExcelSheet.ActiveSheet.Cells(R,3).Value = CStr(FormatDateTime(DateAdd("h", TimeCorrection, oRs.Fields(2).Value), 2)) 'дата
+ 				ExcelSheet.ActiveSheet.Cells(R,4).Value = CStr(FormatDateTime(DateAdd("h", TimeCorrection, oRs.Fields(2).Value), 3)) 'время 				
+				ExcelSheet.ActiveSheet.Cells(R,5).Value = oRs.Fields(37).Value ' текст сообщения
+ 				ExcelSheet.ActiveSheet.Cells(R,6).Value = oRs.Fields(38).Value ' объект			    
+				Status =  oRs.Fields(1).Value 				
+				If status = 1  Then
+				  ExcelSheet.ActiveSheet.Cells(R,2).Value = "Приш"
+				  ExcelSheet.ActiveSheet.Range(ExcelSheet.ActiveSheet.Cells(R, 2), ExcelSheet.ActiveSheet.Cells(R, 6)).Font.Color = oRs.Fields(49).Value 				  
+				  ExcelSheet.ActiveSheet.Range(ExcelSheet.ActiveSheet.Cells(R, 1), ExcelSheet.ActiveSheet.Cells(R, 6)).Interior.Color = oRs.Fields(50).Value
+				Else 
+				  ExcelSheet.ActiveSheet.Cells(R,2).Value = "Ушло"
+				  ExcelSheet.ActiveSheet.Range(ExcelSheet.ActiveSheet.Cells(R, 2), ExcelSheet.ActiveSheet.Cells(R, 6)).Font.Color = oRs.Fields(51).Value   				  
+				  ExcelSheet.ActiveSheet.Range(ExcelSheet.ActiveSheet.Cells(R, 1), ExcelSheet.ActiveSheet.Cells(R, 6)).Interior.Color = oRs.Fields(52).Value				 
+				End If  		    				
+				ExcelSheet.ActiveSheet.Range(ExcelSheet.ActiveSheet.Cells(R, 2), ExcelSheet.ActiveSheet.Cells(R, 6)).Font.Bold = True
+				oRs.MoveNext						    
+			Loop	   		
+	   	Else 	
+	   		ExcelSheet.ActiveSheet.Cells(1,2).Value = "Не найдено достоверных данных."  & vbLf & "Проверьте временной диапазон."
+	    End If
+
+    Set oRs = Nothing
+    Set conn = Nothing														        
+    ExcelSheet.ActiveSheet.Columns(1).Font.Bold = True    
+    ExcelSheet.ActiveSheet.Rows(1).Font.Bold = True
+    ExcelSheet.ActiveSheet.Rows(1).Font.Italic = True
+    ExcelSheet.ActiveSheet.Rows(1).Font.Underline = True        
+    ExcelSheet.ActiveSheet.Columns.AutoFit        
+        
+	sFileName = "C:\Отчет_о_сообщениях_от__" & Day(Date)& "." & Month(Date) & "." & Year(Date) & "__" & Hour(Now) & "-" & Minute(Now) & "-" & Second(Now) & ".XLS"
+	ExcelSheet.SaveAs sFileName
+	MsgBox "Отчет сохранен в файле:" & vbCrLf & sFileName
+	ScreenItems("Report").Text = sFileName
+	ExcelSheet.Application.Quit	
+	Set ExcelSheet = Nothing
+	objExcelApp.Quit
+	Set objExcelApp = Nothing  	
+	
+  ScreenItems("PW_Export_1").Visible = False
+  ScreenItems("PW_Export_2").Visible = False  
+  SetLocale(OldLocale)
+End Sub
