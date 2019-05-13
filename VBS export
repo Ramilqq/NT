@@ -1,3 +1,4 @@
+*******************************************************************************************************(alarm)
 Sub OnClick(ByVal Item)                                                                                                                                                           
 			
 	Dim sDsn, sCon, sSql		
@@ -187,3 +188,4 @@ HMIRuntime.Trace "БД: " & oRs.Fields.Count & " - " & oRs.RecordCount & vbCrLf
   ScreenItems("PW_Export_2").Visible = False  
   SetLocale(OldLocale)
 End Sub
+*******************************************************************************************************
