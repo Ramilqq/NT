@@ -1,0 +1,2 @@
+Alarm logging
+MsgFilterSQL : #VisibleOnly\\class in (3) and type in (33) and text1 like  'авария' and text2 in ('Тег 1')
