@@ -1,4 +1,4 @@
 *******************************************************************************************************
 Alarm logging
-MsgFilterSQL : #VisibleOnly\\class in (class(int)) and type in (type(int)) and text1 like 'TB1' and text2 in ('TB2')
+MsgFilterSQL : #VisibleOnly\\class in (class(int)) and type in (type(int)) and text1 like 'TB1(str)' and text2 in ('TB2(str)')
 *******************************************************************************************************
