@@ -1,0 +1,19 @@
+//управление задвижкой 12 газ НГС-С-1
+"DB_Analog".An[48].bTxnMax:="DB_Analog".An[48].bTxn AND "DB_Analog".An[48].Val>"DB_Analog".An[48].rTxnMax;
+"DB_Analog".An[48].bTxnMin:="DB_Analog".An[48].bTxn AND "DB_Analog".An[48].Val<"DB_Analog".An[48].rTxnMin;
+"DB_ZADV2".Zd[1].LMNS_ON:="DB_ZADV2".Zd[1].AUTO;
+IF "DB_ZADV2".Zd[1].AUTO THEN 
+   IF "DB_Analog".An[48].bTxnMax THEN 
+      "DB_ZADV2".Zd[1].LMNDN:=TRUE;
+      "DB_ZADV2".Zd[1].LMNUP:=FALSE;
+   ELSIF "DB_Analog".An[48].bTxnMin THEN 
+      "DB_ZADV2".Zd[1].LMNDN:=FALSE;
+      "DB_ZADV2".Zd[1].LMNUP:=TRUE;
+   END_IF;  
+   IF "DB_ZADV2".Zd[1].LMNR_LS THEN 
+      "DB_ZADV2".Zd[1].LMNDN:=FALSE;
+   END_IF;
+   IF "DB_ZADV2".Zd[1].LMNR_HS THEN 
+      "DB_ZADV2".Zd[1].LMNUP:=FALSE;
+   END_IF;
+END_IF;
